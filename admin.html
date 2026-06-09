@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>批發後台管理</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d0d10;--sf:#16161c;--sf2:#1e1e27;--bd:#2a2a35;--ac:#7c6af7;--ac2:#4fd1c5;--dg:#fc5c65;--wn:#fd9644;--ok:#26de81;--tx:#eeeef5;--tx2:#8888a8;--tx3:#4a4a6a;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;}
+#loginScreen{display:none;align-items:center;justify-content:center;min-height:100vh;}
+#loginScreen.show{display:flex;}
+.lbox{background:var(--sf);border:1px solid var(--bd);border-radius:20px;padding:48px 40px;width:380px;}
+.lbox h1{font-size:22px;font-weight:700;margin-bottom:4px;}
+.lbox p{color:var(--tx2);font-size:13px;margin-bottom:32px;}
+.fg{margin-bottom:14px;}
+.fg label{display:block;font-size:12px;color:var(--tx2);margin-bottom:5px;font-weight:500;}
+.fg input,.fg select,.fg textarea{width:100%;background:var(--sf2);border:1.5px solid var(--bd);border-radius:10px;padding:10px 14px;color:var(--tx);font-family:inherit;font-size:14px;outline:none;transition:border-color .2s;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--ac);}
+.fg textarea{resize:vertical;min-height:72px;}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.fr3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 18px;border-radius:9px;border:none;cursor:pointer;font-family:inherit;font-size:13px;font-weight:500;transition:all .18s;white-space:nowrap;}
+.bp{background:var(--ac);color:#fff;}.bp:hover{background:#6b59e8;}
+.bd2{background:rgba(252,92,101,0.15);color:var(--dg);border:1px solid rgba(252,92,101,0.3);}
+.bs{background:rgba(38,222,129,0.15);color:var(--ok);border:1px solid rgba(38,222,129,0.3);}
+.bw{background:rgba(253,150,68,0.15);color:var(--wn);border:1px solid rgba(253,150,68,0.3);}
+.bg{background:transparent;color:var(--tx2);border:1px solid var(--bd);}.bg:hover{background:var(--sf2);color:var(--tx);}
+.bsm{padding:5px 11px;font-size:12px;}.bfw{width:100%;}
+#app{display:none;}#app.show{display:flex;min-height:100vh;}
+.sidebar{width:210px;background:var(--sf);border-right:1px solid var(--bd);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;transition:transform .25s;}
+.sbrand{padding:20px 18px 18px;border-bottom:1px solid var(--bd);font-size:15px;font-weight:700;color:var(--ac);}
+.snav{flex:1;padding:10px 0;overflow-y:auto;}
+.nsec{padding:14px 18px 6px;font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:1px;font-weight:600;}
+.ni{display:flex;align-items:center;gap:9px;padding:9px 18px;cursor:pointer;font-size:13px;color:var(--tx2);transition:all .15s;border-left:3px solid transparent;}
+.ni:hover{color:var(--tx);background:var(--sf2);}
+.ni.active{color:var(--ac);border-left-color:var(--ac);background:rgba(124,106,247,0.08);}
+.nic{font-size:15px;width:18px;text-align:center;}
+.sfoot{padding:14px 18px;border-top:1px solid var(--bd);}
+.suser{font-size:11px;color:var(--tx3);margin-bottom:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.main{margin-left:210px;flex:1;padding:28px 32px;min-width:0;}
+.tmob{display:none;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--sf);border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:98;}
+.mbtn{background:none;border:none;color:var(--tx);font-size:22px;cursor:pointer;padding:4px;}
+.movl{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:99;}
+.page{display:none;}.page.active{display:block;}
+.ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;gap:16px;flex-wrap:wrap;}
+.ptitle{font-size:20px;font-weight:700;}.psub{color:var(--tx2);font-size:12px;margin-top:3px;}
+.sgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+.sc{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:18px 20px;}
+.slbl{font-size:11px;color:var(--tx2);margin-bottom:6px;}
+.sval{font-size:26px;font-weight:700;font-family:'JetBrains Mono',monospace;}
+.cac{color:var(--ac);}.cok{color:var(--ok);}.cwn{color:var(--wn);}.cdg{color:var(--dg);}.cac2{color:var(--ac2);}
+.tw{background:var(--sf);border:1px solid var(--bd);border-radius:14px;overflow:hidden;}
+.ttb{padding:14px 18px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.si{background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:7px 12px;color:var(--tx);font-family:inherit;font-size:13px;outline:none;width:200px;}
+table{width:100%;border-collapse:collapse;}
+th{text-align:left;padding:10px 14px;font-size:11px;color:var(--tx3);font-weight:600;border-bottom:1px solid var(--bd);background:var(--sf2);text-transform:uppercase;white-space:nowrap;}
+td{padding:10px 14px;font-size:13px;border-bottom:1px solid var(--bd);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,0.015);}
+tr.sel td{background:rgba(124,106,247,0.08);}
+.tda{display:flex;gap:5px;align-items:center;flex-wrap:wrap;}
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap;}
+.bpend{background:rgba(253,150,68,0.15);color:var(--wn);}
+.bappr{background:rgba(38,222,129,0.15);color:var(--ok);}
+.brejt{background:rgba(252,92,101,0.15);color:var(--dg);}
+.bacti{background:rgba(79,209,197,0.15);color:var(--ac2);}
+.binac{background:rgba(74,74,106,0.3);color:var(--tx3);}
+.bneed{background:rgba(253,150,68,0.2);color:var(--wn);}
+.bstck{background:rgba(79,209,197,0.15);color:var(--ac2);}
+.bprox{background:rgba(240,147,251,0.15);color:#f093fb;}
+.bA{background:rgba(124,106,247,0.2);color:var(--ac);}
+.bB{background:rgba(79,209,197,0.2);color:var(--ac2);}
+.bC{background:rgba(38,222,129,0.2);color:var(--ok);}
+input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:var(--ac);}
+.chk{width:36px;text-align:center;}
+.ie{background:var(--sf2);border:1px solid var(--bd);border-radius:6px;padding:4px 8px;color:var(--tx);font-family:inherit;font-size:12px;width:70px;}
+.tog{display:inline-flex;align-items:center;justify-content:center;padding:3px 8px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--bd);background:var(--sf2);min-width:28px;}
+.tog.on{background:rgba(38,222,129,0.15);color:var(--ok);border-color:rgba(38,222,129,0.3);}
+.tog.off{color:var(--tx3);}
+.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:1000;align-items:center;justify-content:center;}
+.mo.open{display:flex;}
+.md{background:var(--sf);border:1px solid var(--bd);border-radius:18px;padding:28px;width:540px;max-width:95vw;max-height:90vh;overflow-y:auto;}
+.mdw{width:720px;}.mdxl{width:900px;}
+.md h2{font-size:17px;font-weight:700;margin-bottom:20px;}
+.mda{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;}
+.tabs{display:flex;gap:3px;background:var(--sf2);border-radius:9px;padding:3px;margin-bottom:18px;flex-wrap:wrap;}
+.tab{padding:6px 14px;border-radius:7px;cursor:pointer;font-size:12px;color:var(--tx2);border:none;background:transparent;font-family:inherit;font-weight:500;}
+.tab.active{background:var(--sf);color:var(--tx);box-shadow:0 1px 4px rgba(0,0,0,0.3);}
+.srow{display:flex;gap:8px;align-items:flex-start;margin-bottom:8px;background:var(--sf2);border:1px solid var(--bd);border-radius:9px;padding:10px 12px;}
+.sins{flex:1;display:flex;gap:8px;flex-wrap:wrap;}
+.sins input{flex:1;min-width:100px;background:var(--bg);border:1px solid var(--bd);border-radius:7px;padding:6px 10px;color:var(--tx);font-family:inherit;font-size:13px;outline:none;}
+.xb{background:none;border:none;color:var(--tx3);cursor:pointer;font-size:16px;padding:2px 4px;}.xb:hover{color:var(--dg);}
+.irow{display:flex;gap:8px;align-items:center;margin-bottom:6px;}
+.irow input{flex:1;background:var(--bg);border:1px solid var(--bd);border-radius:7px;padding:6px 10px;color:var(--tx);font-family:inherit;font-size:13px;outline:none;}
+.iprev{width:36px;height:36px;border-radius:6px;object-fit:cover;background:var(--sf2);border:1px solid var(--bd);flex-shrink:0;}
+.csec{background:var(--sf2);border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:14px;}
+.csec h4{font-size:13px;font-weight:600;margin-bottom:12px;color:var(--tx2);}
+.bbar{display:none;background:rgba(124,106,247,0.1);border:1px solid rgba(124,106,247,0.3);border-radius:10px;padding:10px 16px;margin-bottom:12px;align-items:center;gap:10px;flex-wrap:wrap;}
+.bbar.show{display:flex;}
+.psm{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;}
+.pc{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:18px 20px;text-align:center;}
+.pc .l{font-size:11px;color:var(--tx2);margin-bottom:6px;}
+.pc .v{font-size:24px;font-weight:700;font-family:'JetBrains Mono',monospace;}
+.dr{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.dr input{background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:7px 12px;color:var(--tx);font-family:inherit;font-size:13px;outline:none;}
+#rc{display:none;}
+.emp{text-align:center;padding:50px 20px;color:var(--tx3);}
+.emp .ico{font-size:36px;margin-bottom:10px;}
+.emp p{font-size:13px;}
+.ld{text-align:center;padding:36px;color:var(--tx2);font-size:13px;}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#1a1a2e;color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;z-index:9999;transition:transform .3s ease;pointer-events:none;border:1px solid var(--bd);}
+#toast.show{transform:translateX(-50%) translateY(0);}
+.schi{padding:3px 8px;border:1.5px solid var(--bd);border-radius:6px;font-size:11px;cursor:pointer;background:var(--sf2);display:inline-block;margin:2px;}
+.schi.sel{background:var(--ac);color:#fff;border-color:var(--ac);}
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%);}
+  .sidebar.open{transform:translateX(0);}
+  .movl.open{display:block;}
+  .tmob{display:flex;}
+  .main{margin-left:0;padding:16px;}
+  .sgrid{grid-template-columns:1fr 1fr;}
+  .fr,.fr3{grid-template-columns:1fr;}
+  .mdw,.mdxl{width:95vw;}
+}
+@media(min-width:769px){.tmob{display:none!important;}}
+</style>
+</head>
+<body>
+<div id="loginScreen">
+  <div class="lbox">
+    <h1>⚡ 批發後台</h1><p>管理員專用登入</p>
+    <div class="fg"><label>Email</label><input type="email" id="lEmail" placeholder="admin@example.com"></div>
+    <div class="fg"><label>密碼</label><input type="password" id="lPw" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <button class="btn bp bfw" onclick="doLogin()">登入</button>
+    <div id="lErr" style="color:var(--dg);font-size:13px;margin-top:10px;text-align:center;"></div>
+  </div>
+</div>
+<div id="app">
+  <div class="movl" id="movl" onclick="closeSB()"></div>
+  <div class="tmob"><button class="mbtn" onclick="openSB()">☰</button><span style="font-size:15px;font-weight:700;color:var(--ac)">⚡ 批發後台</span><span style="width:32px"></span></div>
+  <aside class="sidebar">
+    <div class="sbrand">⚡ 批發管理後台</div>
+    <nav class="snav">
+      <div class="nsec">主要</div>
+      <div class="ni active" onclick="nav('dashboard')" id="nav-dashboard"><span class="nic">📊</span>總覽</div>
+      <div class="ni" onclick="nav('orders')" id="nav-orders"><span class="nic">📋</span>訂單管理</div>
+      <div class="nsec">商品</div>
+      <div class="ni" onclick="nav('products')" id="nav-products"><span class="nic">🛍️</span>商品管理</div>
+      <div class="nsec">財務</div>
+      <div class="ni" onclick="nav('shipment')" id="nav-shipment"><span class="nic">🚚</span>對帳/出貨</div>
+      <div class="ni" onclick="nav('profit')" id="nav-profit"><span class="nic">💰</span>利潤查詢</div>
+      <div class="nsec">設定</div>
+      <div class="ni" onclick="nav('customers')" id="nav-customers"><span class="nic">👥</span>客人管理</div>
+    </nav>
+    <div class="sfoot"><div class="suser" id="adminEmail"></div><button class="btn bg bsm bfw" onclick="doSignOut()">登出</button></div>
+  </aside>
+  <main class="main">
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="ph"><div><div class="ptitle">總覽</div><div class="psub">今日業務狀況</div></div><button class="btn bg bsm" onclick="loadDash()">🔄</button></div>
+      <div class="sgrid">
+        <div class="sc"><div class="slbl">待審核客人</div><div class="sval cwn" id="s-pend">—</div></div>
+        <div class="sc"><div class="slbl">進行中訂單</div><div class="sval cac" id="s-ord">—</div></div>
+        <div class="sc"><div class="slbl">上架商品</div><div class="sval cok" id="s-prod">—</div></div>
+        <div class="sc"><div class="slbl">待採買項目</div><div class="sval cdg" id="s-wait">—</div></div>
+      </div>
+      <div class="tw"><div class="ttb"><span style="font-size:14px;font-weight:600">待審核客人</span></div><div id="pendList"><div class="ld">載入中…</div></div></div>
+    </div>
+    <!-- ORDERS -->
+    <div class="page" id="page-orders">
+      <div class="ph"><div><div class="ptitle">訂單管理</div><div class="psub">所有客人訂單明細</div></div><button class="btn bg bsm" onclick="loadOrders()">🔄</button></div>
+      <div class="bbar" id="bbar"><span style="font-size:13px;color:var(--tx2)" id="bcnt">已選 0 筆</span><button class="btn bw bsm" onclick="bulkAct('斷貨')">標記斷貨</button><button class="btn bg bsm" onclick="openM('bulkSM')">改狀態</button><button class="btn bd2 bsm" onclick="bulkAct('delete')">刪除</button><button class="btn bg bsm" onclick="clrSel()">取消</button></div>
+      <div class="tabs"><button class="tab active" onclick="fOrd('all',this)">全部</button><button class="tab" onclick="fOrd('未配單',this)">未配單</button><button class="tab" onclick="fOrd('已配單',this)">已配單</button><button class="tab" onclick="fOrd('已結單',this)">已結單</button><button class="tab" onclick="fOrd('已收款',this)">已收款</button><button class="tab" onclick="fOrd('已寄出',this)">已寄出</button></div>
+      <div class="tw"><div class="ttb"><input class="si" placeholder="搜尋客人姓名…" oninput="srchOrd(this.value)"></div><div id="ordTable"><div class="ld">載入中…</div></div></div>
+    </div>
+    <!-- PRODUCTS -->
+    <div class="page" id="page-products">
+      <div class="ph"><div><div class="ptitle">商品管理</div><div class="psub">上架、叫貨、配單、入庫</div></div><div class="tda"><button class="btn bg bsm" onclick="openProxy()">👤 代客加單</button><button class="btn bp" onclick="openProdM()">＋ 新增商品</button></div></div>
+      <div class="tw">
+        <div class="ttb"><input class="si" placeholder="搜尋商品名稱…" oninput="srchProd(this.value)"><div style="display:flex;gap:6px"><button class="btn bg bsm" id="pf-all" onclick="fProd('all',this)" style="border-color:var(--ac);color:var(--ac)">全部</button><button class="btn bg bsm" id="pf-need" onclick="fProd('需訂',this)">需訂</button><button class="btn bg bsm" id="pf-inb" onclick="fProd('待入庫',this)">待入庫</button><button class="btn bg bsm" onclick="loadProds()">🔄</button></div></div>
+        <div id="prodTable"><div class="ld">載入中…</div></div>
+      </div>
+    </div>
+    <!-- SHIPMENT -->
+    <div class="page" id="page-shipment">
+      <div class="ph"><div><div class="ptitle">對帳/出貨</div><div class="psub">已結單客人的出貨與收款</div></div><button class="btn bg bsm" onclick="loadShip()">🔄</button></div>
+      <div id="shipList"><div class="ld">載入中…</div></div>
+    </div>
+    <!-- PROFIT -->
+    <div class="page" id="page-profit">
+      <div class="ph"><div><div class="ptitle">利潤查詢</div><div class="psub">依時間區間查詢收益</div></div></div>
+      <div class="tw" style="padding:20px;margin-bottom:20px"><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><div class="dr"><span style="font-size:13px;color:var(--tx2)">從</span><input type="date" id="pFrom"><span style="font-size:13px;color:var(--tx2)">到</span><input type="date" id="pTo"></div><button class="btn bp bsm" onclick="loadProfit()">查詢</button></div></div>
+      <div class="psm"><div class="pc"><div class="l">總營收</div><div class="v cac2" id="pr-rev">—</div></div><div class="pc"><div class="l">總成本</div><div class="v cdg" id="pr-cost">—</div></div><div class="pc"><div class="l">毛利潤</div><div class="v cok" id="pr-pft">—</div></div></div>
+      <div class="tw"><div id="profTable"><div class="emp"><div class="ico">📅</div><p>請選擇時間區間後查詢</p></div></div></div>
+    </div>
+    <!-- CUSTOMERS -->
+    <div class="page" id="page-customers">
+      <div class="ph"><div><div class="ptitle">客人管理</div><div class="psub">審核、設定、查看訂單</div></div></div>
+      <div class="tabs"><button class="tab active" onclick="fCust('all',this)">全部</button><button class="tab" onclick="fCust('pending',this)">待審核</button><button class="tab" onclick="fCust('approved',this)">已核准</button></div>
+      <div class="tw"><div id="custTable"><div class="ld">載入中…</div></div></div>
+    </div>
+  </main>
+</div>
+<!-- MODALS -->
+<div class="mo" id="prodM"><div class="md">
+  <h2 id="pmT">新增商品</h2><input type="hidden" id="pId">
+  <div class="fg"><label>商品名稱</label><input type="text" id="pNm"></div>
+  <div class="fg"><label>商品圖片（可多張）</label><div id="imgCont"></div><button type="button" class="btn bg bsm" style="margin-top:8px" onclick="addIR()">＋ 新增圖片網址</button><div style="font-size:11px;color:var(--tx3);margin-top:6px">GitHub Issues → 拖曳圖片 → 右鍵複製圖片網址</div></div>
+  <div class="fr"><div class="fg"><label>狀態</label><select id="pSt"><option value="上架">上架</option><option value="下架">下架</option></select></div><div class="fg"><label>叫貨廠商</label><div style="display:flex;gap:6px"><select id="pSup" style="flex:1"></select><button class="btn bg bsm" onclick="openM('suppM')">＋</button></div></div></div>
+  <div class="fg"><label>規格（可新增多組）</label><div id="specCont"></div><button type="button" class="btn bg bsm" style="margin-top:8px" onclick="addSR()">＋ 新增規格</button></div>
+  <div class="fr3"><div class="fg"><label>成本價</label><input type="number" id="pCost" placeholder="0"></div><div class="fg"><label>A 級售價</label><input type="number" id="pA" placeholder="0"></div><div class="fg"><label>B 級售價</label><input type="number" id="pB" placeholder="0"></div></div>
+  <div class="fr"><div class="fg"><label>C 級售價</label><input type="number" id="pC" placeholder="0"></div><div></div></div>
+  <div class="fg"><label>備註</label><textarea id="pNote"></textarea></div>
+  <div class="mda"><button class="btn bg" onclick="closeM('prodM')">取消</button><button class="btn bp" onclick="saveProd()">儲存</button></div>
+</div></div>
+
+<div class="mo" id="poM"><div class="md mdxl">
+  <h2 id="poT">商品訂單管理</h2><div id="poC"></div>
+  <div class="mda"><button class="btn bg" onclick="closeM('poM')">關閉</button></div>
+</div></div>
+
+<div class="mo" id="procM"><div class="md mdw">
+  <h2 id="procT">叫貨</h2><div id="procC"></div>
+  <div class="mda"><button class="btn bg" onclick="closeM('procM')">瞭解</button><button class="btn bp" onclick="cfmOrder()">確定叫貨</button></div>
+</div></div>
+
+<div class="mo" id="inbM"><div class="md">
+  <h2>確認入庫</h2><div id="inbC"></div>
+  <div class="mda"><button class="btn bg" onclick="closeM('inbM')">取消</button><button class="btn bs" onclick="cfmInbound()">確認入庫並配單</button></div>
+</div></div>
+
+<div class="mo" id="oeM"><div class="md">
+  <h2>修改訂單明細</h2><input type="hidden" id="eoId"><input type="hidden" id="eiId">
+  <div class="fg"><label>商品名稱</label><input type="text" id="eName" disabled style="opacity:.6"></div>
+  <div class="fg"><label>規格</label><input type="text" id="eSpec" disabled style="opacity:.6"></div>
+  <div class="fr3"><div class="fg"><label>數量</label><input type="number" id="eQty" min="1"></div><div class="fg"><label>售價</label><input type="number" id="ePrice"></div><div class="fg"><label>成本</label><input type="number" id="eCost"></div></div>
+  <div class="mda"><button class="btn bg" onclick="closeM('oeM')">取消</button><button class="btn bp" onclick="saveOE()">儲存</button></div>
+</div></div>
+
+<div class="mo" id="bulkSM"><div class="md" style="width:360px">
+  <h2>批次改狀態</h2>
+  <div class="fg"><label>配單狀態</label><select id="bsA"><option value="">不變</option><option value="true">已配單</option><option value="false">未配單</option></select></div>
+  <div class="fg"><label>結單狀態</label><select id="bsS"><option value="">不變</option><option value="true">已結單</option><option value="false">未結單</option></select></div>
+  <div class="fg"><label>收款狀態</label><select id="bsP"><option value="">不變</option><option value="true">已收款</option><option value="false">未收款</option></select></div>
+  <div class="fg"><label>寄出狀態</label><select id="bsSh"><option value="">不變</option><option value="true">已寄出</option><option value="false">未寄出</option></select></div>
+  <div class="mda"><button class="btn bg" onclick="closeM('bulkSM')">取消</button><button class="btn bp" onclick="applyBS()">套用</button></div>
+</div></div>
+
+<div class="mo" id="cdM"><div class="md mdxl">
+  <h2 id="cdT">客人資料</h2>
+  <div class="tabs" id="cdTabs"><button class="tab active" onclick="swCDT('info',this)">基本資料</button><button class="tab" onclick="swCDT('orders',this)">未出貨訂單</button><button class="tab" onclick="swCDT('history',this)">結單紀錄</button><button class="tab" onclick="swCDT('address',this)">收件資訊</button></div>
+  <div id="cdC"></div>
+  <div class="mda"><button class="btn bg" onclick="closeM('cdM')">關閉</button><button class="btn bp" onclick="openProxyForCust()">＋ 幫客人加單</button><button class="btn bs" id="btnSettle" onclick="settleOrds()" style="display:none">一鍵結單</button></div>
+</div></div>
+
+<div class="mo" id="custM"><div class="md">
+  <h2>審核客人</h2><div id="custMC"></div>
+  <div class="mda"><button class="btn bg" onclick="closeM('custM')">取消</button><button class="btn bd2" id="btnRej" onclick="revCust('rejected')">拒絕</button><button class="btn bs" id="btnApp" onclick="revCust('approved')">核准</button></div>
+</div></div>
+
+<div class="mo" id="proxyM"><div class="md mdw">
+  <h2>代客加單</h2>
+  <div class="fg"><label>選擇客人</label><select id="proxySel" style="width:100%;background:var(--sf2);border:1.5px solid var(--bd);border-radius:10px;padding:10px 14px;color:var(--tx);font-family:inherit;font-size:14px;outline:none;"></select></div>
+  <div id="proxyPL" style="margin-top:8px;max-height:400px;overflow-y:auto"></div>
+  <div class="mda"><button class="btn bg" onclick="closeM('proxyM')">取消</button><button class="btn bp" onclick="submitProxy()">確認加單</button></div>
+</div></div>
+
+<div class="mo" id="suppM"><div class="md" style="width:360px">
+  <h2>新增廠商</h2><div class="fg"><label>廠商名稱</label><input type="text" id="newSuppNm"></div>
+  <div class="mda"><button class="btn bg" onclick="closeM('suppM')">取消</button><button class="btn bp" onclick="saveSupp()">新增</button></div>
+</div></div>
+
+<div class="mo" id="shipM"><div class="md">
+  <h2>編輯出貨資訊</h2><input type="hidden" id="shipOid">
+  <div class="fr"><div class="fg"><label>出貨方式</label><div style="display:flex;gap:6px"><select id="shipMeth" style="flex:1"></select><button class="btn bg bsm" onclick="openM('shipMM')">＋</button></div></div><div class="fg"><label>付款方式</label><select id="shipPay"><option>銀行轉帳</option><option>LINE Pay</option><option>現金</option><option>其他</option></select></div></div>
+  <div class="fr"><div class="fg"><label>運費</label><input type="number" id="shipFee" placeholder="0"></div><div class="fg"><label>備註</label><input type="text" id="shipNote"></div></div>
+  <div class="mda"><button class="btn bg" onclick="closeM('shipM')">取消</button><button class="btn bp" onclick="saveShipI()">儲存</button></div>
+</div></div>
+
+<div class="mo" id="shipMM"><div class="md" style="width:360px">
+  <h2>新增出貨方式</h2><div class="fg"><label>名稱</label><input type="text" id="newShipMeth"></div>
+  <div class="mda"><button class="btn bg" onclick="closeM('shipMM')">取消</button><button class="btn bp" onclick="saveShipMeth()">新增</button></div>
+</div></div>
+
+<canvas id="rc"></canvas><div id="toast"></div>
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import{getAuth,signInWithEmailAndPassword,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import{getFirestore,collection,doc,getDocs,getDoc,addDoc,updateDoc,deleteDoc,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+const FB={apiKey:"AIzaSyA-lk4QYJqTwxMMAcJmOrWUvN-ktfik-fM",authDomain:"wholesale-order-42556.firebaseapp.com",projectId:"wholesale-order-42556",storageBucket:"wholesale-order-42556.firebasestorage.app",messagingSenderId:"432348471899",appId:"1:432348471899:web:0504fe9a1df06f7da2557e"};
+const app=initializeApp(FB),auth=getAuth(app),db=getFirestore(app);
+let allOrds=[],allProds=[],allCusts=[],supps=[],shipMs=[];
+let oFlt='all',cFlt='all',curCustId=null,curProcId=null,curDCustId=null;
+let sel=new Set(),_pom={},_ppm={},_pf='all',_ps='';
+
+// AUTH
+window.doLogin=async()=>{const e=document.getElementById('lEmail').value.trim(),p=document.getElementById('lPw').value;document.getElementById('lErr').textContent='';try{await signInWithEmailAndPassword(auth,e,p);}catch(x){document.getElementById('lErr').textContent='帳號或密碼錯誤';}};
+window.doSignOut=()=>signOut(auth);
+onAuthStateChanged(auth,u=>{if(u){document.getElementById('loginScreen').classList.remove('show');document.getElementById('app').classList.add('show');document.getElementById('adminEmail').textContent=u.email;init();}else{document.getElementById('loginScreen').classList.add('show');document.getElementById('app').classList.remove('show');}});
+async function init(){await Promise.all([loadSupps(),loadShipMs()]);loadDash();loadOrders();loadProds();loadCusts();loadShip();}
+
+// MOBILE
+window.openSB=()=>{document.querySelector('.sidebar').classList.add('open');document.getElementById('movl').classList.add('open');};
+window.closeSB=()=>{document.querySelector('.sidebar').classList.remove('open');document.getElementById('movl').classList.remove('open');};
+document.querySelectorAll('.ni').forEach(el=>el.addEventListener('click',()=>{if(window.innerWidth<=768)closeSB();}));
+window.nav=pg=>{document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));document.getElementById('page-'+pg).classList.add('active');document.getElementById('nav-'+pg).classList.add('active');};
+window.openM=id=>document.getElementById(id).classList.add('open');
+window.closeM=id=>document.getElementById(id).classList.remove('open');
+document.querySelectorAll('.mo').forEach(el=>el.addEventListener('click',e=>{if(e.target===el)el.classList.remove('open');}));
+
+// SUPPLIERS
+async function loadSupps(){const sn=await getDocs(collection(db,'suppliers'));supps=sn.docs.map(d=>({id:d.id,...d.data()}));const s=document.getElementById('pSup');if(s)s.innerHTML='<option value="">選擇廠商</option>'+supps.map(s=>`<option value="${s.name}">${s.name}</option>`).join('');}
+window.saveSupp=async()=>{const n=document.getElementById('newSuppNm').value.trim();if(!n)return;await addDoc(collection(db,'suppliers'),{name:n});await loadSupps();closeM('suppM');toast('廠商已新增');};
+
+// SHIP METHODS
+async function loadShipMs(){const sn=await getDocs(collection(db,'shipMethods'));shipMs=sn.docs.map(d=>({id:d.id,...d.data()}));if(!shipMs.length)shipMs=[{name:'宅配'},{name:'超商'}];const s=document.getElementById('shipMeth');if(s)s.innerHTML=shipMs.map(m=>`<option value="${m.name}">${m.name}</option>`).join('');}
+window.saveShipMeth=async()=>{const n=document.getElementById('newShipMeth').value.trim();if(!n)return;await addDoc(collection(db,'shipMethods'),{name:n});await loadShipMs();closeM('shipMM');toast('出貨方式已新增');};
+
+// DASHBOARD
+window.loadDash=async()=>{
+  const[cs,os,ps]=await Promise.all([getDocs(collection(db,'customers')),getDocs(collection(db,'orders')),getDocs(collection(db,'products'))]);
+  document.getElementById('s-pend').textContent=cs.docs.filter(d=>d.data().status==='pending').length;
+  document.getElementById('s-ord').textContent=os.docs.filter(d=>!d.data().isShipped).length;
+  document.getElementById('s-prod').textContent=ps.docs.filter(d=>d.data().status==='上架').length;
+  let w=0;for(const o of os.docs){const is=await getDocs(collection(db,'orders',o.id,'items'));w+=is.docs.filter(d=>d.data().itemStatus==='待採買').length;}
+  document.getElementById('s-wait').textContent=w;
+  const pc=cs.docs.map(d=>({id:d.id,...d.data()})).filter(c=>c.status==='pending');
+  if(!pc.length){document.getElementById('pendList').innerHTML='<div class="emp"><div class="ico">✅</div><p>目前沒有待審核客人</p></div>';return;}
+  document.getElementById('pendList').innerHTML=`<table><thead><tr><th>姓名</th><th>Email</th><th>申請時間</th><th>操作</th></tr></thead><tbody>${pc.map(c=>`<tr><td><strong>${c.name||'—'}</strong></td><td style="font-size:12px;color:var(--tx2)">${c.email||'—'}</td><td style="font-size:11px;color:var(--tx2)">${fd(c.createdAt)}</td><td class="tda"><select id="tier-${c.id}" class="btn bg bsm"><option value="A">A級</option><option value="B" selected>B級</option><option value="C">C級</option></select><button class="btn bs bsm" onclick="qRev('${c.id}','approved')">核准</button><button class="btn bd2 bsm" onclick="qRev('${c.id}','rejected')">拒絕</button></td></tr>`).join('')}</tbody></table>`;
+};
+window.qRev=async(id,st)=>{const tier=document.getElementById('tier-'+id)?.value||'B';await updateDoc(doc(db,'customers',id),{status:st,tier});toast(st==='approved'?'✅ 已核准':'已拒絕');loadDash();loadCusts();};
+
+// ORDERS
+window.loadOrders=async()=>{
+  document.getElementById('ordTable').innerHTML='<div class="ld">載入中…</div>';
+  sel.clear();updBB();
+  const sn=await getDocs(collection(db,'orders'));allOrds=[];
+  for(const o of sn.docs){const od=o.data();const is=await getDocs(collection(db,'orders',o.id,'items'));allOrds.push({...od,id:o.id,items:is.docs.map(d=>({id:d.id,...d.data()}))});}
+  allOrds.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));renOrds();
+};
+window.fOrd=(s,el)=>{oFlt=s;document.querySelectorAll('#page-orders .tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');renOrds();};
+window.srchOrd=q=>renOrds(q);
+function mOrd(r){if(oFlt==='all')return true;if(oFlt==='未配單')return!r.isAssigned;if(oFlt==='已配單')return r.isAssigned&&!r.isSettled;if(oFlt==='已結單')return r.isSettled&&!r.isPaid;if(oFlt==='已收款')return r.isPaid&&!r.isShipped;if(oFlt==='已寄出')return r.isShipped;return true;}
+function renOrds(srch=''){
+  let rows=[];
+  for(const o of allOrds){for(const i of o.items){if(i.itemStatus==='斷貨')continue;rows.push({...i,oId:o.id,cNm:o.customerName,oAt:o.createdAt,isProxy:o.isProxy||false});}}
+  if(srch)rows=rows.filter(r=>(r.cNm||'').includes(srch));
+  rows=rows.filter(r=>mOrd(r));
+  if(!rows.length){document.getElementById('ordTable').innerHTML='<div class="emp"><div class="ico">📭</div><p>沒有符合的訂單</p></div>';return;}
+  let h=`<div style="overflow-x:auto"><table style="min-width:950px"><thead><tr><th class="chk"><input type="checkbox" onchange="selAll(this.checked)"></th><th>顧客姓名</th><th>商品名稱</th><th>規格</th><th style="text-align:center">數量</th><th style="text-align:center">售價</th><th style="text-align:center">成本</th><th style="text-align:center">利潤</th><th style="text-align:center">配單</th><th style="text-align:center">結單</th><th style="text-align:center">收款</th><th style="text-align:center">寄出</th><th>操作</th></tr></thead><tbody>`;
+  for(const r of rows){
+    const uid=r.oId+'__'+r.id,pft=((r.unitPrice||0)-(r.cost||0))*(r.quantity||1);
+    h+=`<tr class="${sel.has(uid)?'sel':''}"><td class="chk"><input type="checkbox" ${sel.has(uid)?'checked':''} onchange="togI('${uid}',this.checked)"></td>
+    <td><strong>${r.cNm||'—'}</strong>${r.isProxy?'<span class="badge bprox" style="margin-left:4px">代客</span>':''}<div style="font-size:11px;color:var(--tx3)">${fds(r.oAt)}</div></td>
+    <td><strong>${r.productName}</strong></td><td style="font-size:12px;color:var(--tx2)">${r.specStr||'—'}</td>
+    <td style="text-align:center;font-family:'JetBrains Mono',monospace">${r.quantity||1}</td>
+    <td style="text-align:center;font-family:'JetBrains Mono',monospace">$${(r.unitPrice||0).toLocaleString()}</td>
+    <td style="text-align:center;font-family:'JetBrains Mono',monospace;color:var(--dg)">$${(r.cost||0).toLocaleString()}</td>
+    <td style="text-align:center;font-family:'JetBrains Mono',monospace;color:var(--ok)">$${pft.toLocaleString()}</td>
+    <td style="text-align:center"><span class="tog ${r.isAssigned?'on':'off'}" onclick="togSt('${r.oId}','${r.id}','isAssigned',${!r.isAssigned})">${r.isAssigned?'✓':'✗'}</span></td>
+    <td style="text-align:center"><span class="tog ${r.isSettled?'on':'off'}" onclick="togSt('${r.oId}','${r.id}','isSettled',${!r.isSettled})">${r.isSettled?'✓':'✗'}</span></td>
+    <td style="text-align:center"><span class="tog ${r.isPaid?'on':'off'}" onclick="togSt('${r.oId}','${r.id}','isPaid',${!r.isPaid})">${r.isPaid?'✓':'✗'}</span></td>
+    <td style="text-align:center"><span class="tog ${r.isShipped?'on':'off'}" onclick="togSt('${r.oId}','${r.id}','isShipped',${!r.isShipped})">${r.isShipped?'✓':'✗'}</span></td>
+    <td class="tda"><button class="btn bg bsm" onclick="openOE('${r.oId}','${r.id}')">✏️</button><button class="btn bd2 bsm" onclick="delOI('${r.oId}','${r.id}')">🗑</button></td></tr>`;
+  }
+  h+='</tbody></table></div>';document.getElementById('ordTable').innerHTML=h;
+}
+window.togSt=async(oid,iid,f,v)=>{await updateDoc(doc(db,'orders',oid,'items',iid),{[f]:v});const o=allOrds.find(x=>x.id===oid);if(o){const i=o.items.find(x=>x.id===iid);if(i)i[f]=v;}renOrds();};
+window.togI=(uid,c)=>{if(c)sel.add(uid);else sel.delete(uid);updBB();};
+window.selAll=c=>{document.querySelectorAll('#ordTable tbody input[type=checkbox]').forEach(cb=>{const m=cb.getAttribute('onchange')?.match(/'([^']+)'/);if(!m)return;if(c)sel.add(m[1]);else sel.delete(m[1]);cb.checked=c;});document.querySelectorAll('#ordTable tbody tr').forEach(tr=>tr.classList.toggle('sel',c));updBB();};
+function updBB(){const b=document.getElementById('bbar');document.getElementById('bcnt').textContent=`已選 ${sel.size} 筆`;if(sel.size>0)b.classList.add('show');else b.classList.remove('show');}
+window.clrSel=()=>{sel.clear();updBB();renOrds();};
+window.bulkAct=async a=>{
+  if(!sel.size){toast('請先勾選項目');return;}
+  if(a==='delete'&&!confirm(`確定刪除 ${sel.size} 筆？`))return;
+  for(const uid of sel){const[oid,iid]=uid.split('__');if(a==='delete')await deleteDoc(doc(db,'orders',oid,'items',iid));else if(a==='斷貨')await updateDoc(doc(db,'orders',oid,'items',iid),{itemStatus:'斷貨'});}
+  toast('✅ 批次完成');sel.clear();loadOrders();
+};
+window.applyBS=async()=>{
+  const flds={};const mp={bsA:'isAssigned',bsS:'isSettled',bsP:'isPaid',bsSh:'isShipped'};
+  Object.entries(mp).forEach(([el,f])=>{const v=document.getElementById(el).value;if(v!=='')flds[f]=v==='true';});
+  if(!Object.keys(flds).length){toast('請選擇要變更的狀態');return;}
+  for(const uid of sel){const[oid,iid]=uid.split('__');await updateDoc(doc(db,'orders',oid,'items',iid),flds);}
+  toast('✅ 狀態已更新');closeM('bulkSM');sel.clear();loadOrders();
+};
+window.openOE=(oid,iid)=>{
+  const o=allOrds.find(x=>x.id===oid);const i=o?.items.find(x=>x.id===iid);if(!i)return;
+  document.getElementById('eoId').value=oid;document.getElementById('eiId').value=iid;
+  document.getElementById('eName').value=i.productName||'';document.getElementById('eSpec').value=i.specStr||'';
+  document.getElementById('eQty').value=i.quantity||1;document.getElementById('ePrice').value=i.unitPrice||0;document.getElementById('eCost').value=i.cost||0;
+  openM('oeM');
+};
+window.saveOE=async()=>{
+  const oid=document.getElementById('eoId').value,iid=document.getElementById('eiId').value;
+  const d={quantity:parseInt(document.getElementById('eQty').value)||1,unitPrice:parseFloat(document.getElementById('ePrice').value)||0,cost:parseFloat(document.getElementById('eCost').value)||0};
+  await updateDoc(doc(db,'orders',oid,'items',iid),d);
+  const o=allOrds.find(x=>x.id===oid);if(o){const i=o.items.find(x=>x.id===iid);if(i)Object.assign(i,d);}
+  closeM('oeM');renOrds();toast('已更新');
+};
+window.delOI=async(oid,iid)=>{if(!confirm('確定刪除？'))return;await deleteDoc(doc(db,'orders',oid,'items',iid));const o=allOrds.find(x=>x.id===oid);if(o)o.items=o.items.filter(x=>x.id!==iid);renOrds();toast('已刪除');};
+// PRODUCTS
+let sCnt=0,iCnt=0;
+window.addSR=(n='',v='')=>{const id=sCnt++;const r=document.createElement('div');r.className='srow';r.innerHTML=`<div class="sins"><input type="text" placeholder="規格名稱（例：顏色）" value="${n}" class="sn"><input type="text" placeholder="選項，逗號分隔（例：紅,藍,黑）" value="${v}" class="sv"></div><button class="xb" onclick="this.closest('.srow').remove()">✕</button>`;document.getElementById('specCont').appendChild(r);};
+function gSpecs(){return[...document.querySelectorAll('#specCont .srow')].map(r=>({name:r.querySelector('.sn').value.trim(),values:r.querySelector('.sv').value.trim()})).filter(s=>s.name&&s.values);}
+function lSpecs(sp){document.getElementById('specCont').innerHTML='';sCnt=0;if(sp&&sp.length)sp.forEach(s=>addSR(s.name,s.values));}
+window.addIR=(url='')=>{const id=iCnt++;const r=document.createElement('div');r.className='irow';r.innerHTML=`<img class="iprev" src="${url}" style="${url?'':'display:none'}" id="ip-${id}"><input type="text" placeholder="貼上圖片網址…" value="${url}" oninput="prevI(${id},this.value)"><button class="xb" onclick="this.closest('.irow').remove()">✕</button>`;document.getElementById('imgCont').appendChild(r);};
+window.prevI=(id,url)=>{const img=document.getElementById('ip-'+id);if(!img)return;if(url){img.src=url;img.style.display='block';}else img.style.display='none';};
+function gImgs(){return[...document.querySelectorAll('#imgCont .irow input')].map(i=>i.value.trim()).filter(Boolean);}
+function lImgs(imgs){document.getElementById('imgCont').innerHTML='';iCnt=0;if(!imgs||!imgs.length){addIR();return;}imgs.forEach(url=>addIR(url));}
+
+window.loadProds=async()=>{
+  document.getElementById('prodTable').innerHTML='<div class="ld">載入中…</div>';
+  const[ps,os,prs]=await Promise.all([getDocs(collection(db,'products')),getDocs(collection(db,'orders')),getDocs(collection(db,'procurements'))]);
+  allProds=ps.docs.map(d=>({id:d.id,...d.data()}));
+  _ppm={};prs.docs.forEach(d=>{const pd=d.data();if(!_ppm[pd.productId])_ppm[pd.productId]={obs:{}};if(pd.specQtys)Object.entries(pd.specQtys).forEach(([s,q])=>{_ppm[pd.productId].obs[s]=(_ppm[pd.productId].obs[s]||0)+(q||0);});});
+  _pom={};for(const o of os.docs){const od=o.data();const is=await getDocs(collection(db,'orders',o.id,'items'));for(const i of is.docs){const d=i.data();if(!_pom[d.productId])_pom[d.productId]={total:0,unassigned:0,pending:[]};_pom[d.productId].total+=d.quantity||1;if(d.itemStatus==='待採買'){_pom[d.productId].unassigned+=d.quantity||1;_pom[d.productId].pending.push({oId:o.id,iId:i.id,cNm:od.customerName,qty:d.quantity||1,spec:d.specStr||'',oAt:od.createdAt});}}}
+  renProds();
+};
+window.srchProd=q=>{_ps=q;renProds();};
+window.fProd=(f,el)=>{_pf=f;document.querySelectorAll('[id^="pf-"]').forEach(b=>{b.style.borderColor='';b.style.color='';});if(el){el.style.borderColor='var(--ac)';el.style.color='var(--ac)';}renProds();};
+function gRem(pid){const om=_pom[pid]||{pending:[]};const pm=_ppm[pid]||{obs:{}};const need={};om.pending.forEach(p=>{const k=p.spec||'（無規格）';need[k]=(need[k]||0)+p.qty;});let t=0;Object.entries(need).forEach(([s,n])=>{t+=Math.max(0,n-(pm.obs[s]||0));});return t;}
+function isNO(pid){return gRem(pid)>0;}
+function isWI(pid){return(_pom[pid]||{unassigned:0}).unassigned>0&&!isNO(pid);}
+function renProds(){
+  let prods=[...allProds];
+  if(_ps)prods=prods.filter(p=>p.name?.includes(_ps));
+  prods.sort((a,b)=>{const aN=isNO(a.id),bN=isNO(b.id),aW=isWI(a.id),bW=isWI(b.id);if(aN&&!bN)return -1;if(!aN&&bN)return 1;if(aW&&!bW)return -1;if(!aW&&bW)return 1;return 0;});
+  if(_pf==='需訂')prods=prods.filter(p=>isNO(p.id));
+  if(_pf==='待入庫')prods=prods.filter(p=>isWI(p.id));
+  if(!prods.length){document.getElementById('prodTable').innerHTML='<div class="emp"><div class="ico">🛍️</div><p>尚無商品</p></div>';return;}
+  let h=`<div style="overflow-x:auto"><table style="min-width:700px;width:100%;border-collapse:collapse"><thead><tr><th style="width:56px"></th><th>商品名稱</th><th style="text-align:center">賣場</th><th style="text-align:center">訂單</th><th style="text-align:center">未配</th><th style="text-align:center">叫貨</th><th>廠商</th><th>上架時間</th><th>操作</th></tr></thead><tbody>`;
+  for(const p of prods){
+    const om=_pom[p.id]||{total:0,unassigned:0},no=isNO(p.id),wi=isWI(p.id);
+    const bg=no?'background:rgba(253,150,68,0.05)':wi?'background:rgba(79,209,197,0.05)':'';
+    const th=p.imageUrl?`<img src="${p.imageUrl}" style="width:48px;height:48px;border-radius:8px;object-fit:cover;border:1px solid var(--bd)" onerror="this.style.display='none'">`:`<div style="width:48px;height:48px;border-radius:8px;background:var(--sf2);border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:20px">🛍️</div>`;
+    h+=`<tr style="${bg}"><td>${th}</td><td><div style="font-weight:600;font-size:13px">${p.name}</div><div style="font-size:11px;color:var(--tx2)">${p.specs&&p.specs.length?p.specs.map(s=>s.name).join('、'):'無規格'}</div></td>
+    <td style="text-align:center"><select class="btn bg bsm" onchange="qsc('${p.id}',this.value)"><option value="上架" ${p.status==='上架'?'selected':''}>上架</option><option value="下架" ${p.status==='下架'?'selected':''}>下架</option></select></td>
+    <td style="text-align:center;font-family:'JetBrains Mono',monospace;font-weight:600">${om.total||'—'}</td>
+    <td style="text-align:center;font-family:'JetBrains Mono',monospace;font-weight:600;color:${om.unassigned>0?'var(--wn)':'var(--tx3)'}">${om.unassigned||'—'}</td>
+    <td style="text-align:center">${no?`<span class="badge bneed" style="cursor:pointer" onclick="openProcM('${p.id}')">需訂</span>`:wi?`<span class="badge bstck" style="cursor:pointer" onclick="openInbM('${p.id}')">待入庫</span>`:om.total>0?'<span class="badge bappr">已配單</span>':'<span style="color:var(--tx3);font-size:12px">—</span>'}</td>
+    <td style="font-size:12px;color:var(--tx2)">${p.supplier||'—'}</td>
+    <td style="font-size:11px;color:var(--tx2)">${fds(p.createdAt)}</td>
+    <td><div class="tda"><button class="btn bg bsm" onclick="openProdM('${p.id}')">編輯</button><button class="btn bg bsm" onclick="openPO('${p.id}')">訂單</button><button class="btn bg bsm" onclick="cpLink('${p.id}')">🔗</button>${no?`<button class="btn bw bsm" onclick="openProcM('${p.id}')">叫貨</button>`:''}${wi?`<button class="btn bs bsm" onclick="openInbM('${p.id}')">入庫</button>`:''}</div></td></tr>`;
+  }
+  h+='</tbody></table></div>';document.getElementById('prodTable').innerHTML=h;
+}
+window.qsc=async(pid,status)=>{await updateDoc(doc(db,'products',pid),{status});const p=allProds.find(x=>x.id===pid);if(p)p.status=status;toast('狀態已更新');};
+window.cpLink=pid=>{const base=location.href.replace('admin.html','index.html').split('?')[0];navigator.clipboard.writeText(`${base}?product=${pid}`).then(()=>toast('✅ 連結已複製'));};
+
+window.openPO=async pid=>{
+  const p=allProds.find(x=>x.id===pid)||{};
+  document.getElementById('poT').textContent=`${p.name} — 訂單管理`;
+  document.getElementById('poC').innerHTML='<div class="ld">載入中…</div>';openM('poM');
+  const sn=await getDocs(collection(db,'orders'));const rows=[];
+  for(const o of sn.docs){const od=o.data();const is=await getDocs(collection(db,'orders',o.id,'items'));for(const i of is.docs){const d=i.data();if(d.productId===pid)rows.push({oId:o.id,iId:i.id,cNm:od.customerName,...d});}}
+  if(!rows.length){document.getElementById('poC').innerHTML='<div class="emp"><div class="ico">📭</div><p>此商品尚無訂單</p></div>';return;}
+  document.getElementById('poC').innerHTML=`<div style="margin-bottom:8px"><button class="btn bw bsm" onclick="batchOOS()">批次斷貨</button></div>
+  <div style="overflow-x:auto"><table style="min-width:600px;width:100%;border-collapse:collapse"><thead><tr><th class="chk"><input type="checkbox" onchange="document.querySelectorAll('.poc').forEach(c=>c.checked=this.checked)"></th><th>客人</th><th>規格</th><th>數量</th><th>售價</th><th>成本</th><th>狀態</th><th>操作</th></tr></thead>
+  <tbody>${rows.map(r=>`<tr><td class="chk"><input type="checkbox" class="poc" data-o="${r.oId}" data-i="${r.iId}"></td><td>${r.cNm||'—'}</td><td style="font-size:12px;color:var(--tx2)">${r.specStr||'—'}</td><td><input type="number" value="${r.quantity||1}" min="1" class="ie" onchange="updPO('${r.oId}','${r.iId}','quantity',this.value)"></td><td><input type="number" value="${r.unitPrice||0}" class="ie" onchange="updPO('${r.oId}','${r.iId}','unitPrice',this.value)"></td><td><input type="number" value="${r.cost||0}" class="ie" onchange="updPO('${r.oId}','${r.iId}','cost',this.value)"></td><td>${r.itemStatus==='斷貨'?'<span class="badge brejt">斷貨</span>':'<span class="badge bappr">正常</span>'}</td><td><button class="btn bw bsm" onclick="markOOS('${r.oId}','${r.iId}')">斷貨</button></td></tr>`).join('')}</tbody></table></div>`;
+};
+window.updPO=async(oid,iid,f,v)=>await updateDoc(doc(db,'orders',oid,'items',iid),{[f]:f==='quantity'?parseInt(v)||1:parseFloat(v)||0});
+window.markOOS=async(oid,iid)=>{await updateDoc(doc(db,'orders',oid,'items',iid),{itemStatus:'斷貨'});toast('已標記斷貨');};
+window.batchOOS=async()=>{const cs=[...document.querySelectorAll('.poc:checked')];if(!cs.length){toast('請先勾選');return;}for(const c of cs)await updateDoc(doc(db,'orders',c.dataset.o,'items',c.dataset.i),{itemStatus:'斷貨'});toast('批次斷貨完成');loadOrders();};
+
+window.openProdM=async(id=null)=>{
+  const s=document.getElementById('pSup');if(s)s.innerHTML='<option value="">選擇廠商</option>'+supps.map(x=>`<option value="${x.name}">${x.name}</option>`).join('');
+  ['pId','pNm','pNote'].forEach(f=>document.getElementById(f).value='');['pCost','pA','pB','pC'].forEach(f=>document.getElementById(f).value='');
+  document.getElementById('pSt').value='上架';lSpecs([]);lImgs([]);
+  document.getElementById('pmT').textContent=id?'編輯商品':'新增商品';
+  if(id){const p=allProds.find(x=>x.id===id);if(p){document.getElementById('pId').value=p.id;document.getElementById('pNm').value=p.name||'';document.getElementById('pCost').value=p.cost||'';document.getElementById('pA').value=p.priceA||'';document.getElementById('pB').value=p.priceB||'';document.getElementById('pC').value=p.priceC||'';document.getElementById('pNote').value=p.note||'';document.getElementById('pSt').value=p.status||'上架';if(s)s.value=p.supplier||'';lSpecs(p.specs||[]);lImgs(p.images||(p.imageUrl?[p.imageUrl]:[]));}}
+  openM('prodM');
+};
+window.saveProd=async()=>{
+  const id=document.getElementById('pId').value,imgs=gImgs();
+  const data={name:document.getElementById('pNm').value.trim(),images:imgs,imageUrl:imgs[0]||'',specs:gSpecs(),cost:Number(document.getElementById('pCost').value)||0,priceA:Number(document.getElementById('pA').value)||0,priceB:Number(document.getElementById('pB').value)||0,priceC:Number(document.getElementById('pC').value)||0,note:document.getElementById('pNote').value.trim(),status:document.getElementById('pSt').value,supplier:document.getElementById('pSup')?.value||''};
+  if(!data.name){toast('請填寫商品名稱');return;}
+  if(id)await updateDoc(doc(db,'products',id),data);else{data.createdAt=serverTimestamp();await addDoc(collection(db,'products'),data);}
+  closeM('prodM');loadProds();toast('商品已儲存');
+};
+// PROC MODAL (叫貨)
+window.openProcM=async pid=>{
+  curProcId=pid;const p=allProds.find(x=>x.id===pid)||{};
+  const sn=await getDocs(collection(db,'orders'));
+  const smap={};let tQ=0,tRev=0;
+  for(const o of sn.docs){const od=o.data();const is=await getDocs(collection(db,'orders',o.id,'items'));for(const i of is.docs){const d=i.data();if(d.productId!==pid||d.itemStatus!=='待採買')continue;const k=d.specStr||'（無規格）';if(!smap[k])smap[k]={needed:0,ordered:0,price:0,orders:[]};smap[k].needed+=d.quantity||1;smap[k].price=d.unitPrice||0;smap[k].orders.push({cNm:od.customerName,qty:d.quantity||1});tQ+=d.quantity||1;tRev+=(d.unitPrice||0)*(d.quantity||1);}}
+  const prsn=await getDocs(collection(db,'procurements'));
+  prsn.docs.forEach(d=>{const pd=d.data();if(pd.productId!==pid)return;if(pd.specQtys)Object.entries(pd.specQtys).forEach(([s,q])=>{if(smap[s])smap[s].ordered+=q||0;});});
+  Object.keys(smap).forEach(k=>{smap[k].rem=Math.max(0,smap[k].needed-smap[k].ordered);});
+  const ents=Object.entries(smap).filter(([,d])=>d.rem>0);
+  if(!ents.length){toast('此商品所有規格已全部訂貨');return;}
+  const cost=p.cost||0;
+  const rows=ents.map(([spec,data])=>`
+    <div style="border:1px solid var(--bd);border-radius:9px;overflow:hidden;margin-bottom:8px">
+      <div style="background:var(--sf2);padding:8px 14px;display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:13px;font-weight:600">${spec}</span>
+        <span style="font-size:11px;color:var(--wn);font-weight:600">需訂 ${data.rem} 件${data.ordered>0?` <span style="color:var(--tx3);font-size:10px">(已訂${data.ordered})</span>`:''}</span>
+      </div>
+      <div style="padding:10px 14px">
+        <div style="font-size:11px;color:var(--tx2);margin-bottom:8px">${data.orders.map(o=>`${o.cNm} × ${o.qty}`).join('　｜　')}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div><div style="font-size:11px;color:var(--tx3);margin-bottom:4px">成本/個</div>
+            <input type="number" value="${cost}" min="0" style="width:100%;background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:6px 10px;color:var(--tx);font-family:inherit;font-size:13px" oninput="updProcT()" class="psc" data-spec="${spec}"></div>
+          <div><div style="font-size:11px;color:var(--tx3);margin-bottom:4px">數量 <span style="color:var(--wn)">（需${data.rem}件）</span></div>
+            <input type="number" value="${data.rem}" min="0" max="${data.rem}" style="width:100%;background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:6px 10px;color:var(--tx);font-family:inherit;font-size:13px" oninput="updProcT()" class="psq" data-spec="${spec}" data-need="${data.rem}"></div>
+        </div>
+      </div>
+    </div>`).join('');
+  document.getElementById('procT').textContent=`叫貨：${p.name}`;
+  document.getElementById('procC').innerHTML=`
+    <div style="display:flex;gap:8px;margin-bottom:14px"><div style="background:var(--sf2);border-radius:8px;padding:7px 12px;font-size:12px">廠商：<strong>${p.supplier||'未設定'}</strong></div></div>
+    ${rows}
+    <div class="fg" style="margin-top:12px"><label>供應商備註</label><textarea id="procNote" style="min-height:56px"></textarea></div>
+    <div style="display:flex;justify-content:space-around;align-items:center;margin-top:12px;padding:12px 14px;background:var(--sf2);border-radius:9px">
+      <div style="text-align:center"><div style="font-size:11px;color:var(--tx2);margin-bottom:2px">小計售價</div><div style="color:var(--dg);font-weight:700;font-family:'JetBrains Mono',monospace;font-size:15px" id="ptRev">$${tRev.toLocaleString()}</div></div>
+      <div style="text-align:center"><div style="font-size:11px;color:var(--tx2);margin-bottom:2px">小計成本</div><div style="color:var(--wn);font-weight:700;font-family:'JetBrains Mono',monospace;font-size:15px" id="ptCost">$${(cost*tQ).toLocaleString()}</div></div>
+      <div style="text-align:center"><div style="font-size:11px;color:var(--tx2);margin-bottom:2px">小計數量</div><div style="font-weight:700;font-family:'JetBrains Mono',monospace;font-size:15px" id="ptQty">${tQ}</div></div>
+    </div>`;
+  openM('procM');
+};
+window.updProcT=()=>{let q=0,c=0;document.querySelectorAll('.psq').forEach((qi,i)=>{const v=parseInt(qi.value)||0;const ci=document.querySelectorAll('.psc')[i];const cv=parseInt(ci?.value)||0;q+=v;c+=v*cv;});const e1=document.getElementById('ptQty'),e2=document.getElementById('ptCost');if(e1)e1.textContent=q;if(e2)e2.textContent='$'+c.toLocaleString();};
+window.cfmOrder=async()=>{
+  const qIs=document.querySelectorAll('.psq'),cIs=document.querySelectorAll('.psc');
+  const sq={},sc={};let tot=0;
+  qIs.forEach((inp,i)=>{const q=parseInt(inp.value)||0;const c=parseInt(cIs[i]?.value)||0;sq[inp.dataset.spec]=q;sc[inp.dataset.spec]=c;tot+=q;});
+  if(!tot){toast('請填入訂貨數量');return;}
+  const note=document.getElementById('procNote')?.value||'';
+  await addDoc(collection(db,'procurements'),{productId:curProcId,productName:allProds.find(x=>x.id===curProcId)?.name||'',specQtys:sq,specCosts:sc,totalOrdered:tot,note,status:'已訂貨',createdAt:serverTimestamp()});
+  closeM('procM');toast('✅ 已記錄訂貨');loadProds();
+};
+
+// INBOUND
+window.openInbM=async pid=>{
+  curProcId=pid;const p=allProds.find(x=>x.id===pid)||{};
+  const sn=await getDocs(collection(db,'orders'));const pending=[];
+  for(const o of sn.docs){const od=o.data();const is=await getDocs(collection(db,'orders',o.id,'items'));for(const i of is.docs){const d=i.data();if(d.productId===pid&&d.itemStatus==='待採買')pending.push({oId:o.id,iId:i.id,cNm:od.customerName,qty:d.quantity||1,spec:d.specStr||'',oAt:od.createdAt});}}
+  pending.sort((a,b)=>(a.oAt?.seconds||0)-(b.oAt?.seconds||0));
+  const sm={};pending.forEach(item=>{const k=item.spec||'（無規格）';if(!sm[k])sm[k]={total:0,items:[]};sm[k].total+=item.qty;sm[k].items.push(item);});
+  const rows=Object.entries(sm).map(([spec,data])=>`
+    <div style="border:1px solid var(--bd);border-radius:9px;overflow:hidden;margin-bottom:8px">
+      <div style="background:var(--sf2);padding:8px 14px;display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:13px;font-weight:600">${spec}</span>
+        <span style="font-size:11px;color:var(--ac2)">待入庫 ${data.total} 件</span>
+      </div>
+      <div style="padding:10px 14px">
+        <div style="font-size:11px;color:var(--tx2);margin-bottom:8px">${data.items.map(i=>`${i.cNm} × ${i.qty}`).join('　｜　')}</div>
+        <div><div style="font-size:11px;color:var(--tx3);margin-bottom:4px">實際到貨數量</div>
+          <input type="number" value="${data.total}" min="0" style="width:120px;background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:6px 10px;color:var(--tx);font-family:inherit;font-size:13px" class="ibq" data-spec="${spec}" data-total="${data.total}">
+        </div>
+      </div>
+    </div>`).join('');
+  document.getElementById('inbC').innerHTML=`<div style="font-size:13px;font-weight:600;margin-bottom:12px">${p.name} — 依下單時間先後配單</div>${rows}`;
+  window._ibSpec=sm;openM('inbM');
+};
+window.cfmInbound=async()=>{
+  const inputs=document.querySelectorAll('.ibq');
+  for(const inp of inputs){
+    const spec=inp.dataset.spec,qty=parseInt(inp.value)||0,data=window._ibSpec[spec];
+    if(!data)continue;let rem=qty;
+    for(const item of data.items){
+      if(rem>=item.qty){await updateDoc(doc(db,'orders',item.oId,'items',item.iId),{itemStatus:'已到貨',isAssigned:true});rem-=item.qty;}
+      else if(rem>0){await updateDoc(doc(db,'orders',item.oId,'items',item.iId),{itemStatus:'已到貨',quantity:rem,isAssigned:true});rem=0;}
+      else{await updateDoc(doc(db,'orders',item.oId,'items',item.iId),{itemStatus:'斷貨'});}
+    }
+  }
+  await loadOrders();closeM('inbM');toast('✅ 入庫完成，已自動配單');loadProds();
+};
+
+// PROXY ORDER (代客加單)
+window.openProxy=()=>{
+  const s=document.getElementById('proxySel');
+  s.innerHTML=allCusts.filter(c=>c.status==='approved').map(c=>`<option value="${c.id}">${c.name} (${c.tier||'B'}級)</option>`).join('');
+  renProxyProds();openM('proxyM');
+};
+window.openProxyForCust=()=>{
+  const s=document.getElementById('proxySel');
+  s.innerHTML=allCusts.filter(c=>c.status==='approved').map(c=>`<option value="${c.id}" ${c.id===curDCustId?'selected':''}>${c.name} (${c.tier||'B'}級)</option>`).join('');
+  renProxyProds();closeM('cdM');openM('proxyM');
+};
+function renProxyProds(){
+  const h=allProds.filter(p=>p.status==='上架').map(p=>`
+    <div style="border:1px solid var(--bd);border-radius:9px;padding:10px 14px;margin-bottom:6px;display:flex;align-items:center;gap:12px">
+      ${p.imageUrl?`<img src="${p.imageUrl}" style="width:40px;height:40px;border-radius:7px;object-fit:cover;flex-shrink:0" onerror="this.style.display='none'">`:'<div style="width:40px;height:40px;border-radius:7px;background:var(--sf2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🛍️</div>'}
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600;margin-bottom:4px">${p.name}</div>
+        ${p.specs&&p.specs.length?p.specs.map(spec=>`
+          <div style="font-size:11px;color:var(--tx2);margin-top:4px">${spec.name}</div>
+          <div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:3px" id="pxs-${p.id}-${spec.name.replace(/\s/g,'_')}">
+            ${spec.values.split(',').map(v=>v.trim()).filter(Boolean).map(v=>`<span class="schi" onclick="pxSel('${p.id}','${spec.name}','${v}',this)">${v}</span>`).join('')}
+          </div>`).join(''):''}
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+        <button onclick="pxQty('${p.id}',-1)" style="width:26px;height:26px;border:1px solid var(--bd);border-radius:5px;background:var(--sf2);color:var(--tx);cursor:pointer;font-size:16px">−</button>
+        <input type="number" value="0" min="0" id="pxq-${p.id}" style="width:50px;text-align:center;background:var(--sf2);border:1px solid var(--bd);border-radius:5px;padding:3px;color:var(--tx);font-size:13px">
+        <button onclick="pxQty('${p.id}',1)" style="width:26px;height:26px;border:1px solid var(--bd);border-radius:5px;background:var(--sf2);color:var(--tx);cursor:pointer;font-size:16px">＋</button>
+      </div>
+    </div>`).join('');
+  document.getElementById('proxyPL').innerHTML=h||'<div class="emp"><div class="ico">🛍️</div><p>目前沒有上架商品</p></div>';
+}
+window.pxSel=(pid,sn,v,el)=>{const k=sn.replace(/\s/g,'_');document.querySelectorAll(`#pxs-${pid}-${k} .schi`).forEach(c=>{c.classList.remove('sel');});el.classList.add('sel');};
+window.pxQty=(pid,d)=>{const inp=document.getElementById('pxq-'+pid);inp.value=Math.max(0,(parseInt(inp.value)||0)+d);};
+window.submitProxy=async()=>{
+  const custId=document.getElementById('proxySel').value;
+  const cust=allCusts.find(c=>c.id===custId);if(!cust){toast('請選擇客人');return;}
+  const items=[];
+  for(const p of allProds.filter(x=>x.status==='上架')){
+    const qty=parseInt(document.getElementById('pxq-'+p.id)?.value)||0;if(!qty)continue;
+    const specs=p.specs||{};const ss={};
+    for(const spec of specs){const k=spec.name.replace(/\s/g,'_');const sel=document.querySelector(`#pxs-${p.id}-${k} .schi.sel`);if(sel)ss[spec.name]=sel.textContent;}
+    const specStr=Object.entries(ss).map(([k,v])=>`${k}：${v}`).join(' / ');
+    const tier=cust.tier||'B';const price=tier==='A'?p.priceA:tier==='C'?p.priceC:p.priceB;
+    items.push({productId:p.id,productName:p.name,specStr,selectedSpecs:ss,quantity:qty,unitPrice:price||0,cost:p.cost||0,itemStatus:'待採買'});
+  }
+  if(!items.length){toast('請選擇至少一件商品並填入數量');return;}
+  const oRef=await addDoc(collection(db,'orders'),{customerId:custId,customerName:cust.name,customerEmail:cust.email||'',isProxy:true,createdAt:serverTimestamp()});
+  for(const item of items)await addDoc(collection(db,'orders',oRef.id,'items'),item);
+  closeM('proxyM');toast(`✅ 已為 ${cust.name} 代客加單`);loadOrders();loadProds();
+};
+// SHIPMENT
+window.loadShip=async()=>{
+  document.getElementById('shipList').innerHTML='<div class="ld">載入中…</div>';
+  const sn=await getDocs(collection(db,'orders'));
+  const ords=sn.docs.map(d=>({id:d.id,...d.data()})).filter(o=>o.orderStatus==='已付款'||o.orderStatus==='待出貨'||o.orderStatus==='已出貨').sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+  if(!ords.length){document.getElementById('shipList').innerHTML='<div class="emp"><div class="ico">🚚</div><p>沒有待對帳的訂單</p></div>';return;}
+  let h='';
+  for(const o of ords){
+    const is=await getDocs(collection(db,'orders',o.id,'items'));const items=is.docs.map(d=>({id:d.id,...d.data()}));
+    let sub=0;items.forEach(i=>{if(i.itemStatus!=='斷貨')sub+=(i.unitPrice||0)*(i.quantity||1);});
+    const fee=o.shippingFee||0,tot=sub+fee;
+    h+=`<div style="background:var(--sf);border:1px solid var(--bd);border-radius:14px;overflow:hidden;margin-bottom:10px">
+      <div style="padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer" onclick="togShip('${o.id}')">
+        <div style="flex:1"><div style="font-weight:600;font-size:14px">${o.customerName||'—'}</div><div style="font-size:11px;color:var(--tx2);margin-top:2px">${o.shippingMethod||'未設定'} ｜ ${o.paymentMethod||'未設定'}</div></div>
+        <div style="display:flex;align-items:center;gap:10px;flex-shrink:0"><div style="text-align:right"><div style="font-size:11px;color:var(--tx2)">應付</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:15px">$${tot.toLocaleString()}</div></div><span style="color:var(--tx3);font-size:18px">›</span></div>
+      </div>
+      <div style="display:none;border-top:1px solid var(--bd)" id="ship-${o.id}">
+        <div style="padding:12px 18px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn bg bsm" onclick="openShipM('${o.id}')">✏️ 出貨資訊</button>
+          <button class="btn bs bsm" onclick="updShipSt('${o.id}','已付款')">✅ 已收款</button>
+          <button class="btn bw bsm" onclick="updShipSt('${o.id}','待出貨')">📦 已包貨</button>
+          <button class="btn bp bsm" onclick="updShipSt('${o.id}','已出貨')">🚚 已出貨</button>
+          <button class="btn bg bsm" onclick="genRcptFor('${o.id}')">📷 明細圖</button>
+        </div>
+        ${items.map(i=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 18px;border-bottom:1px solid var(--bd);font-size:13px"><div>${i.productName}${i.specStr?' ('+i.specStr+')':''} × ${i.quantity}</div><span style="font-family:'JetBrains Mono',monospace">$${((i.unitPrice||0)*(i.quantity||1)).toLocaleString()}</span></div>`).join('')}
+        <div style="display:flex;justify-content:space-between;padding:10px 18px;font-size:13px"><span style="color:var(--tx2)">運費</span><span style="font-family:'JetBrains Mono',monospace">$${fee.toLocaleString()}</span></div>
+        <div style="display:flex;justify-content:space-between;padding:10px 18px;border-top:1px solid var(--bd)"><span style="font-weight:600">應付總金額</span><span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--ac2);font-size:16px">$${tot.toLocaleString()}</span></div>
+      </div>
+    </div>`;
+  }
+  document.getElementById('shipList').innerHTML=h;
+};
+window.togShip=id=>{const el=document.getElementById('ship-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';};
+window.updShipSt=async(id,st)=>{await updateDoc(doc(db,'orders',id),{orderStatus:st});loadShip();};
+window.openShipM=id=>{document.getElementById('shipOid').value=id;const s=document.getElementById('shipMeth');if(s)s.innerHTML=shipMs.map(m=>`<option value="${m.name}">${m.name}</option>`).join('');openM('shipM');};
+window.saveShipI=async()=>{const id=document.getElementById('shipOid').value;await updateDoc(doc(db,'orders',id),{shippingMethod:document.getElementById('shipMeth').value,paymentMethod:document.getElementById('shipPay').value,shippingFee:Number(document.getElementById('shipFee').value)||0,shipNote:document.getElementById('shipNote').value.trim()});closeM('shipM');loadShip();toast('出貨資訊已儲存');};
+
+// PROFIT
+window.loadProfit=async()=>{
+  const from=document.getElementById('pFrom').value,to=document.getElementById('pTo').value;
+  if(!from||!to){toast('請選擇時間區間');return;}
+  const fd2=new Date(from),td2=new Date(to);td2.setHours(23,59,59);
+  const sn=await getDocs(collection(db,'orders'));
+  const ords=sn.docs.map(d=>({id:d.id,...d.data()})).filter(o=>{if(!o.createdAt)return false;const d=o.createdAt.toDate();return d>=fd2&&d<=td2;});
+  let rev=0,cost=0;const rows=[];
+  for(const o of ords){const is=await getDocs(collection(db,'orders',o.id,'items'));for(const i of is.docs){const d=i.data();if(d.itemStatus==='斷貨')continue;const prod=allProds.find(p=>p.id===d.productId)||{};const ir=(d.unitPrice||0)*(d.quantity||1);const ic=(d.cost||prod.cost||0)*(d.quantity||1);rev+=ir;cost+=ic;rows.push({pNm:d.productName,cNm:o.customerName,qty:d.quantity||1,price:d.unitPrice||0,cost:d.cost||prod.cost||0,rev:ir,pft:ir-ic,date:o.createdAt});}}
+  document.getElementById('pr-rev').textContent='$'+rev.toLocaleString();
+  document.getElementById('pr-cost').textContent='$'+cost.toLocaleString();
+  document.getElementById('pr-pft').textContent='$'+(rev-cost).toLocaleString();
+  if(!rows.length){document.getElementById('profTable').innerHTML='<div class="emp"><div class="ico">📭</div><p>此區間沒有訂單</p></div>';return;}
+  document.getElementById('profTable').innerHTML=`<table><thead><tr><th>商品</th><th>客人</th><th>數量</th><th>售價</th><th>成本</th><th>收益</th><th>利潤</th><th>日期</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${r.pNm}</td><td>${r.cNm}</td><td style="font-family:'JetBrains Mono',monospace">${r.qty}</td><td style="font-family:'JetBrains Mono',monospace">$${r.price.toLocaleString()}</td><td style="font-family:'JetBrains Mono',monospace;color:var(--dg)">$${r.cost.toLocaleString()}</td><td style="font-family:'JetBrains Mono',monospace">$${r.rev.toLocaleString()}</td><td style="font-family:'JetBrains Mono',monospace;color:var(--ok)">$${r.pft.toLocaleString()}</td><td style="font-size:11px;color:var(--tx2)">${fds(r.date)}</td></tr>`).join('')}</tbody></table>`;
+};
+
+// CUSTOMERS
+window.loadCusts=async()=>{
+  document.getElementById('custTable').innerHTML='<div class="ld">載入中…</div>';
+  const[cs,os]=await Promise.all([getDocs(collection(db,'customers')),getDocs(collection(db,'orders'))]);
+  allCusts=cs.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+  const stats={};
+  for(const o of os.docs){const od=o.data();const cid=od.customerId;if(!cid)continue;if(!stats[cid])stats[cid]={unassigned:0,assignedUnsettled:0,unsettledTotal:0};const is=await getDocs(collection(db,'orders',o.id,'items'));for(const i of is.docs){const d=i.data();if(d.itemStatus==='斷貨')continue;if(!d.isAssigned)stats[cid].unassigned++;else if(!d.isSettled){stats[cid].assignedUnsettled++;stats[cid].unsettledTotal+=(d.unitPrice||0)*(d.quantity||1);}}}
+  window._cStats=stats;renCusts();
+};
+window.fCust=(s,el)=>{cFlt=s;document.querySelectorAll('#page-customers .tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');renCusts();};
+function renCusts(){
+  let cs=allCusts;if(cFlt!=='all')cs=cs.filter(c=>c.status===cFlt);
+  if(!cs.length){document.getElementById('custTable').innerHTML='<div class="emp"><div class="ico">👥</div><p>沒有符合的客人</p></div>';return;}
+  document.getElementById('custTable').innerHTML=`<div style="overflow-x:auto"><table style="min-width:800px;width:100%;border-collapse:collapse"><thead><tr><th>名字</th><th>信箱</th><th>級別</th><th>狀態</th><th style="text-align:center">未配單</th><th style="text-align:center">已配未結</th><th style="text-align:center">未結單總額</th><th>加入日期</th><th>操作</th></tr></thead><tbody>${cs.map(c=>{const st=window._cStats?.[c.id]||{unassigned:0,assignedUnsettled:0,unsettledTotal:0};return`<tr><td><strong>${c.name||'—'}</strong></td><td style="font-size:12px;color:var(--tx2)">${c.email||'—'}</td><td>${tierB(c.tier)}</td><td>${custB(c.status)}</td><td style="text-align:center;font-family:'JetBrains Mono',monospace;color:${st.unassigned>0?'var(--wn)':'var(--tx3)'}">${st.unassigned}</td><td style="text-align:center;font-family:'JetBrains Mono',monospace;color:${st.assignedUnsettled>0?'var(--ac2)':'var(--tx3)'}">${st.assignedUnsettled}</td><td style="text-align:center;font-family:'JetBrains Mono',monospace;color:${st.unsettledTotal>0?'var(--ok)':'var(--tx3)'}">$${st.unsettledTotal.toLocaleString()}</td><td style="font-size:11px;color:var(--tx2)">${fds(c.createdAt)}</td><td class="tda"><button class="btn bg bsm" onclick="openCD('${c.id}')">查看</button>${c.status==='pending'?`<button class="btn bg bsm" onclick="openCustM('${c.id}')">審核</button>`:''}</td></tr>`;}).join('')}</tbody></table></div>`;
+}
+
+// CUSTOMER DETAIL
+window.openCD=async id=>{
+  curDCustId=id;const c=allCusts.find(x=>x.id===id)||{};
+  document.getElementById('cdT').textContent=c.name||'客人資料';
+  document.querySelectorAll('#cdTabs .tab').forEach((t,i)=>t.classList.toggle('active',i===0));
+  document.getElementById('btnSettle').style.display='none';
+  await renCDT('info',id);openM('cdM');
+};
+window.swCDT=async(tab,el)=>{
+  document.querySelectorAll('#cdTabs .tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');
+  document.getElementById('btnSettle').style.display=tab==='orders'?'inline-flex':'none';
+  await renCDT(tab,curDCustId);
+};
+async function renCDT(tab,cid){
+  const c=allCusts.find(x=>x.id===cid)||{};const el=document.getElementById('cdC');
+  if(tab==='info'){
+    el.innerHTML=`<div class="csec"><h4>基本資料</h4>
+      <div class="fr"><div class="fg"><label>姓名</label><input type="text" id="cdNm" value="${c.name||''}"></div><div class="fg"><label>Email</label><input type="text" value="${c.email||''}" disabled style="opacity:.6"></div></div>
+      <div class="fr"><div class="fg"><label>級別</label><select id="cdTier"><option value="A" ${c.tier==='A'?'selected':''}>A 級</option><option value="B" ${c.tier==='B'?'selected':''}>B 級</option><option value="C" ${c.tier==='C'?'selected':''}>C 級</option></select></div><div class="fg"><label>狀態</label><div style="margin-top:8px">${custB(c.status)}</div></div></div>
+      <button class="btn bp bsm" onclick="saveCDInfo('${cid}')">儲存資料</button></div>`;
+  }else if(tab==='orders'){
+    const sn=await getDocs(collection(db,'orders'));let h='';
+    for(const o of sn.docs.map(d=>({id:d.id,...d.data()})).filter(o=>o.customerId===cid)){
+      const is=await getDocs(collection(db,'orders',o.id,'items'));
+      const items=is.docs.map(d=>({id:d.id,...d.data()})).filter(i=>!i.isShipped&&i.itemStatus!=='斷貨');
+      if(!items.length)continue;
+      h+=items.map(item=>`<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd)">
+        <div style="flex:1"><div style="font-size:13px;font-weight:500">${item.productName}</div><div style="font-size:11px;color:var(--tx2)">${item.specStr||'—'} ｜ ${fds(o.createdAt)}</div></div>
+        <input type="number" value="${item.quantity||1}" min="1" class="ie" onchange="updPO('${o.id}','${item.id}','quantity',this.value)">
+        <span style="font-size:11px;color:var(--tx2)">×</span>
+        <input type="number" value="${item.unitPrice||0}" class="ie" style="width:80px" onchange="updPO('${o.id}','${item.id}','unitPrice',this.value)">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;min-width:70px;text-align:right">$${((item.unitPrice||0)*(item.quantity||1)).toLocaleString()}</span>
+        <div style="display:flex;gap:4px">${item.isAssigned?'<span class="badge bappr">已配</span>':'<span class="badge bpend">未配</span>'}${item.isSettled?'<span class="badge bacti">已結</span>':''}</div>
+      </div>`).join('');
+    }
+    el.innerHTML=h||'<div class="emp"><div class="ico">📭</div><p>沒有未出貨的訂單</p></div>';
+  }else if(tab==='history'){
+    const sn=await getDocs(collection(db,'orders'));
+    const ords=sn.docs.map(d=>({id:d.id,...d.data()})).filter(o=>o.customerId===cid&&o.isSettled).sort((a,b)=>(b.settledAt?.seconds||0)-(a.settledAt?.seconds||0));
+    if(!ords.length){el.innerHTML='<div class="emp"><div class="ico">📋</div><p>尚無結單紀錄</p></div>';return;}
+    let h='';
+    for(const o of ords){const is=await getDocs(collection(db,'orders',o.id,'items'));const items=is.docs.map(d=>({id:d.id,...d.data()}));let tot=0;items.forEach(i=>{if(i.itemStatus!=='斷貨')tot+=(i.unitPrice||0)*(i.quantity||1);});h+=`<div style="border:1px solid var(--bd);border-radius:10px;padding:12px 16px;margin-bottom:8px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div style="font-size:12px;color:var(--tx2)">結單時間：${fd(o.settledAt||o.createdAt)}</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--ac2)">$${tot.toLocaleString()}</div></div>${items.filter(i=>i.itemStatus!=='斷貨').map(i=>`<div style="font-size:12px;color:var(--tx2);padding:3px 0">${i.productName}${i.specStr?' ('+i.specStr+')':''} × ${i.quantity} = $${((i.unitPrice||0)*(i.quantity||1)).toLocaleString()}</div>`).join('')}<button class="btn bg bsm" style="margin-top:8px" onclick="genRcptFor('${o.id}')">📷 明細圖</button></div>`;}
+    el.innerHTML=h;
+  }else if(tab==='address'){
+    el.innerHTML=`<div class="csec"><h4>收件資訊</h4>
+      <div class="fg"><label>收件姓名</label><input type="text" id="adNm" value="${c.address?.name||c.name||''}"></div>
+      <div class="fr"><div class="fg"><label>電話</label><input type="text" id="adPh" value="${c.address?.phone||''}"></div><div class="fg"><label>郵遞區號</label><input type="text" id="adZip" value="${c.address?.zip||''}"></div></div>
+      <div class="fg"><label>地址</label><input type="text" id="adAddr" value="${c.address?.addr||''}"></div>
+      <div class="fg"><label>備註</label><textarea id="adNote" style="min-height:56px">${c.address?.note||''}</textarea></div>
+      <button class="btn bp bsm" onclick="saveCDAddr('${cid}')">儲存收件資訊</button></div>`;
+  }
+}
+window.saveCDInfo=async cid=>{const name=document.getElementById('cdNm').value.trim(),tier=document.getElementById('cdTier').value;await updateDoc(doc(db,'customers',cid),{name,tier});const c=allCusts.find(x=>x.id===cid);if(c){c.name=name;c.tier=tier;}toast('客人資料已儲存');loadCusts();};
+window.saveCDAddr=async cid=>{const addr={name:document.getElementById('adNm').value.trim(),phone:document.getElementById('adPh').value.trim(),zip:document.getElementById('adZip').value.trim(),addr:document.getElementById('adAddr').value.trim(),note:document.getElementById('adNote').value.trim()};await updateDoc(doc(db,'customers',cid),{address:addr});toast('收件資訊已儲存');};
+window.settleOrds=async()=>{
+  if(!confirm('確認一鍵結單？將把此客人所有「已配單」商品標記為已結單'))return;
+  const sn=await getDocs(collection(db,'orders'));
+  const ords=sn.docs.map(d=>({id:d.id,...d.data()})).filter(o=>o.customerId===curDCustId);
+  let cnt=0,firstOid=null;
+  for(const o of ords){
+    const is=await getDocs(collection(db,'orders',o.id,'items'));
+    for(const i of is.docs){const d=i.data();if(d.isAssigned&&!d.isSettled){await updateDoc(doc(db,'orders',o.id,'items',i.id),{isSettled:true});cnt++;if(!firstOid)firstOid=o.id;}}
+    await updateDoc(doc(db,'orders',o.id),{isSettled:true,settledAt:serverTimestamp()});
+  }
+  if(cnt>0&&firstOid){toast(`✅ 已結單 ${cnt} 件商品`);await genRcptFor(firstOid);}else toast('沒有可結單的已配單商品');
+  await renCDT('orders',curDCustId);loadCusts();loadOrders();
+};
+
+// CUSTOMER REVIEW
+window.openCustM=id=>{
+  curCustId=id;const c=allCusts.find(x=>x.id===id);if(!c)return;
+  document.getElementById('custMC').innerHTML=`<div class="fg"><label>姓名</label><input type="text" id="cNm" value="${c.name||''}"></div><div class="fg"><label>Email</label><input type="text" value="${c.email||''}" disabled style="opacity:.6"></div><div class="fg"><label>級別</label><select id="cTier"><option value="A" ${c.tier==='A'?'selected':''}>A 級</option><option value="B" ${c.tier==='B'?'selected':''}>B 級</option><option value="C" ${c.tier==='C'?'selected':''}>C 級</option></select></div><div style="margin-top:6px">${custB(c.status)}</div>`;
+  document.getElementById('btnApp').style.display=c.status==='approved'?'none':'inline-flex';
+  document.getElementById('btnRej').style.display=c.status==='rejected'?'none':'inline-flex';
+  openM('custM');
+};
+window.revCust=async st=>{const name=document.getElementById('cNm').value.trim(),tier=document.getElementById('cTier').value;await updateDoc(doc(db,'customers',curCustId),{status:st,tier,name});closeM('custM');loadCusts();loadDash();toast('客人資料已更新');};
+
+// RECEIPT
+async function genRcptFor(oid){
+  const od=await getDoc(doc(db,'orders',oid));const o={id:oid,...od.data()};
+  const is=await getDocs(collection(db,'orders',oid,'items'));const items=is.docs.map(d=>({id:d.id,...d.data()}));
+  let tot=0;items.forEach(i=>{if(i.itemStatus!=='斷貨')tot+=(i.unitPrice||0)*(i.quantity||1);});tot+=(o.shippingFee||0);
+  window._rcpt={o,items,tot};genRcpt();
+}
+window.genRcptFor=genRcptFor;
+function genRcpt(){
+  const{o,items,tot}=window._rcpt;const canvas=document.getElementById('rc');const W=600,lH=28;
+  const vItems=items.filter(i=>i.itemStatus!=='斷貨'),xItems=items.filter(i=>i.itemStatus==='斷貨');
+  const H=160+vItems.length*lH+(xItems.length?40+xItems.length*lH:0)+80;
+  canvas.width=W;canvas.height=H;const ctx=canvas.getContext('2d');
+  ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#1a1a2e';ctx.fillRect(0,0,W,56);
+  ctx.fillStyle='#fff';ctx.font='bold 18px sans-serif';ctx.fillText('批發訂單明細',24,36);
+  ctx.font='12px monospace';ctx.fillStyle='#aaaacc';ctx.fillText(new Date().toLocaleDateString('zh-TW'),W-110,36);
+  ctx.fillStyle='#1a1a2e';ctx.font='14px sans-serif';ctx.fillText(`客人：${o.customerName||'—'}`,24,82);
+  ctx.fillStyle='#666680';ctx.font='12px sans-serif';ctx.fillText(`訂單編號：${o.id.slice(-6).toUpperCase()}`,24,102);
+  ctx.strokeStyle='#e0e0f0';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(24,116);ctx.lineTo(W-24,116);ctx.stroke();
+  let y=136;ctx.fillStyle='#999';ctx.font='11px sans-serif';
+  ['商品','規格','數量','金額'].forEach((t,i)=>ctx.fillText(t,[24,240,380,W-60][i],y));y+=18;
+  for(const item of vItems){ctx.fillStyle='#1a1a2e';ctx.font='13px sans-serif';ctx.fillText(item.productName,24,y);ctx.fillText(item.specStr||'—',240,y);ctx.fillText(item.quantity,380,y);ctx.fillText('$'+((item.unitPrice||0)*(item.quantity||1)).toLocaleString(),W-80,y);y+=lH;}
+  if(xItems.length){y+=8;ctx.strokeStyle='#ffdddd';ctx.beginPath();ctx.moveTo(24,y);ctx.lineTo(W-24,y);ctx.stroke();y+=18;ctx.fillStyle='#cc4444';ctx.font='bold 11px sans-serif';ctx.fillText('以下商品斷貨：',24,y);y+=lH;for(const i of xItems){ctx.fillStyle='#cc4444';ctx.font='12px sans-serif';ctx.fillText(`${i.productName}（${i.specStr||'無'}）x${i.quantity}  斷貨`,24,y);y+=lH;}}
+  y+=8;ctx.fillStyle='#e8e8f0';ctx.fillRect(0,y,W,56);ctx.fillStyle='#666680';ctx.font='13px sans-serif';ctx.fillText('應付總金額',24,y+24);ctx.fillStyle='#1a1a2e';ctx.font='bold 22px monospace';ctx.fillText('$'+tot.toLocaleString(),W-120,y+32);
+  canvas.style.display='block';const link=document.createElement('a');link.download=`明細_${o.customerName}_${o.id.slice(-6)}.png`;link.href=canvas.toDataURL('image/png');link.click();canvas.style.display='none';
+}
+
+// HELPERS
+function fd(ts){if(!ts)return'—';const d=ts.toDate?ts.toDate():new Date(ts);return d.toLocaleDateString('zh-TW')+' '+d.toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'});}
+function fds(ts){if(!ts)return'—';const d=ts.toDate?ts.toDate():new Date(ts);return d.toLocaleDateString('zh-TW');}
+function custB(s){const m={pending:'bpend',approved:'bappr',rejected:'brejt'};const l={pending:'待審核',approved:'已核准',rejected:'已拒絕'};return`<span class="badge ${m[s]||'bpend'}">${l[s]||s}</span>`;}
+function tierB(t){if(!t)return'<span class="badge binac">未設定</span>';return`<span class="badge b${t}">${t} 級</span>`;}
+let _tt;function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('show'),2500);}
+window.toast=toast;
+</script>
+</body>
+</html>
